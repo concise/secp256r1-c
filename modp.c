@@ -31,8 +31,6 @@ void modp_sub(uint32_t *Z, const uint32_t *X, const uint32_t *Y)
     }
 }
 
-
-
 static void spmp_mul(uint32_t *z, uint32_t x, const uint32_t *y)
 {
     uint32_t crr = 0;
@@ -46,51 +44,25 @@ static void spmp_mul(uint32_t *z, uint32_t x, const uint32_t *y)
 
 void modp_mmul(uint32_t *Z, const uint32_t *X, const uint32_t *Y)
 {
-/*
-    V <- 0
-    FOR i FROM 0 TO 7
-        T <- V + Y * X[i]
-        U <- (T * L) mod (2**32)
-        V <- (T + M * U) / (2**32)
+    uint32_t S[9];
+    uint32_t T[9];
+    bool t9;
+    uint32_t V[8] = {0};
+    bool v8 = 0;
 
-    a loose upper bound for V is 2M-1
+    for (int i = 0; i < 8; ++i) {
+        spmp_mul(S, X[i], Y);
+        {
+            uint64_t tmp = (uint64_t)S[8] + v8 + add256_o(T, S, V);
+            T[8] = (uint32_t)tmp;
+            t9 = (bool)(tmp >> 32);
+        }
+        spmp_mul(S, T[0] * L, M);
+        v8 = t9 | add256_io(V, T+1, S+1, T[0]);
+    }
 
-    ---------------------------------
-
-    X,Y < M < 2**256
-
-    PROOF: V <= (2M-1)
-        T <= (2M-1) + (M-1)(2**32-1)
-        U <= (2**32-1)
-        T + M * U <= (2M-1) + (M-1)(2**32-1) + M(2**32-1)
-        T + M * U <= (2M-1) +(2M-1)(2**32-1)
-        T + M * U <= (2M-1)(2**32)
-       (T + M * U)/(2**32) <= (2M-1)
-
-
-
-    V is a 257-bit register (9-byte)
-    S is a 288-bit register (9-byte)
-    T is a 289-bit register (10-byte)
-
-    V <- 0
-    FOR i = 0 ~ 7 DO
-        S <- Y * X[i]                     (288 bits) <- (256 bits) * (32 bits)
-        T <- V + S                        (289 bits) <- (257 bits) + (288 bits)
-        S <- M * ((uint32_t)(T[0] * L))   (288 bits) <- (256 bits) * (32 bits)
-        V <- (T + S) / 2**32              (289 bits) <- (289 bits) + (288 bits)
-
-    W <- V - M
-    IF W < 0
-        Z <- V
-    ELSE
-        Z <- W
-*/
-
-    // TODO
-    (void)Z;
-    (void)X;
-    (void)Y;
-
-    (void)L;
+    v8 -= sub256_o(Z, V, M);
+    for (int i = 0; i < 8; ++i) {
+        Z[i] ^= (Z[i] ^ V[i]) & (-v8);
+    }
 }
