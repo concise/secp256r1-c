@@ -3,9 +3,9 @@
 bool add256_io(uint32_t *z, const uint32_t *x, const uint32_t *y, bool cflag)
 {
     for (int i = 0; i < 8; ++i) {
-        uint64_t tmp = (uint64_t)x[i] + (uint64_t)y[i] + (uint64_t)cflag;
+        uint64_t tmp = (uint64_t)x[i] + y[i] + cflag;
         z[i] = (uint32_t)tmp;
-        cflag = (bool)(tmp >> 32);
+        cflag = tmp >> 32;
     }
     return cflag;
 }
@@ -28,9 +28,9 @@ void add256(uint32_t *z, const uint32_t *x, const uint32_t *y)
 bool sub256_io(uint32_t *z, const uint32_t *x, const uint32_t *y, bool bflag)
 {
     for (int i = 0; i < 8; ++i) {
-        uint64_t tmp = (uint64_t)x[i] - (uint64_t)y[i] - (uint64_t)bflag;
+        uint64_t tmp = (uint64_t)x[i] - y[i] - bflag;
         z[i] = (uint32_t)tmp;
-        bflag = (bool)(tmp >> 32);
+        bflag = tmp >> 32;
     }
     return bflag;
 }
