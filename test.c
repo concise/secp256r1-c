@@ -1,3 +1,4 @@
+#include "modn.h"
 #include "modp.h"
 #include <stdio.h>
 #include <string.h>
@@ -39,6 +40,24 @@ int main(void)
     memcpy(X, DATA1, 32);   dumpbuf("X", X);
     memcpy(Y, DATA2, 32);   dumpbuf("Y", Y);
     modp_mmul(Z, X, Y);     dumpbuf("Z", Z);
+    puts("print((X*Y - Z*2**256) % M == 0)");
+
+    puts("M = 0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551");
+    memcpy(X, DATA1, 32);   dumpbuf("X", X);
+    memcpy(Y, DATA2, 32);   dumpbuf("Y", Y);
+    modn_add(Z, X, Y);      dumpbuf("Z", Z);
+    puts("print((X + Y - Z) % M == 0)");
+
+    puts("M = 0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551");
+    memcpy(X, DATA1, 32);   dumpbuf("X", X);
+    memcpy(Y, DATA2, 32);   dumpbuf("Y", Y);
+    modn_sub(Z, X, Y);      dumpbuf("Z", Z);
+    puts("print((X - Y - Z) % M == 0)");
+
+    puts("M = 0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551");
+    memcpy(X, DATA1, 32);   dumpbuf("X", X);
+    memcpy(Y, DATA2, 32);   dumpbuf("Y", Y);
+    modn_mmul(Z, X, Y);     dumpbuf("Z", Z);
     puts("print((X*Y - Z*2**256) % M == 0)");
 
     return 0;
