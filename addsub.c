@@ -2,9 +2,9 @@
 
 bool add256_io(uint32_t *z, const uint32_t *x, const uint32_t *y, bool cflag)
 {
-    for (int i = 0; i < 8; ++i) {
+    for (int i = 0; i < 8; i++) {
         uint64_t tmp = (uint64_t)x[i] + y[i] + cflag;
-        z[i] = (uint32_t)tmp;
+        z[i] = tmp & 0xffffffff;
         cflag = tmp >> 32;
     }
     return cflag;
@@ -27,9 +27,9 @@ void add256(uint32_t *z, const uint32_t *x, const uint32_t *y)
 
 bool sub256_io(uint32_t *z, const uint32_t *x, const uint32_t *y, bool bflag)
 {
-    for (int i = 0; i < 8; ++i) {
+    for (int i = 0; i < 8; i++) {
         uint64_t tmp = (uint64_t)x[i] - y[i] - bflag;
-        z[i] = (uint32_t)tmp;
+        z[i] = tmp & 0xffffffff;
         bflag = tmp >> 32;
     }
     return bflag;
@@ -48,4 +48,15 @@ void sub256_i(uint32_t *z, const uint32_t *x, const uint32_t *y, bool bflag)
 void sub256(uint32_t *z, const uint32_t *x, const uint32_t *y)
 {
     sub256_io(z, x, y, 0);
+}
+
+void mul_to_288_from_32_256(uint32_t *z, uint32_t x, const uint32_t *y)
+{
+    uint32_t crr = 0;
+    for (int i = 0; i < 8; i++) {
+        uint64_t product = (uint64_t)x * y[i] + crr;
+        z[i] = product & 0xffffffff;
+        crr = product >> 32;
+    }
+    z[8] = crr;
 }

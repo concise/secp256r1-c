@@ -3,6 +3,8 @@
 
 #include <stdint.h>
 
+//  P = 0xffffffff00000001000000000000000000000000ffffffffffffffffffffffff
+//
 //  Three 256-bit unsigned integer operations are implemented here:
 //
 //      Z <- X + Y mod P
