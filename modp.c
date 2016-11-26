@@ -2,7 +2,13 @@
 #include "addsub.h"
 #include "modp.h"
 
-static const uint32_t L = 0x00000001;
+// index bits starting from the most significant bit
+#define FROM_M_MINUS_TWO_EXTRACT_BIT(i) (((const unsigned char *) \
+    "\xff\xff\xff\xff\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00" \
+    "\x00\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xfd" \
+    )[i >> 3] >> (~i & 7) & 1)
+
+#define L 0x00000001
 
 // 0xffffffff00000001000000000000000000000000ffffffffffffffffffffffff
 static const uint32_t M[8] = {
@@ -49,5 +55,22 @@ void modp_mmul(uint32_t *Z, const uint32_t *X, const uint32_t *Y)
     uint32_t mask = -(v8 != bf);
     for (int i = 0; i < 8; i++) {
         Z[i] ^= (Z[i] ^ V[i]) & mask;
+    }
+}
+
+void modp_inv(uint32_t *Z, const uint32_t *X)
+{
+    uint32_t T[8];
+    for (int i = 0; i < 8; i++) {
+        T[i] = X[i];
+    }
+    for (int i = 1; i < 256; i++) {
+        modp_mmul(T, T, T);
+        if (FROM_M_MINUS_TWO_EXTRACT_BIT(i)) {
+            modp_mmul(T, T, X);
+        }
+    }
+    for (int i = 0; i < 8; i++) {
+        Z[i] = T[i];
     }
 }
