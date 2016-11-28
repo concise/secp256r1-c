@@ -92,3 +92,17 @@ void modp_minv(uint32_t *Z, const uint32_t *X)
         Z[i] = T[i];
     }
 }
+
+void convert_32_u8_objects_to_8_u32_objects(uint32_t *out, const uint8_t *inp)
+{
+#define i (uint32_t)inp
+    out[0] = i[28] << 24 | i[29] << 16 | i[30] << 8 | i[31] ;
+    out[1] = i[24] << 24 | i[25] << 16 | i[26] << 8 | i[27] ;
+    out[2] = i[20] << 24 | i[21] << 16 | i[22] << 8 | i[23] ;
+    out[3] = i[16] << 24 | i[17] << 16 | i[18] << 8 | i[19] ;
+    out[4] = i[12] << 24 | i[13] << 16 | i[14] << 8 | i[15] ;
+    out[5] = i[8]  << 24 | i[9]  << 16 | i[10] << 8 | i[11] ;
+    out[6] = i[4]  << 24 | i[5]  << 16 | i[6]  << 8 | i[7]  ;
+    out[7] = i[0]  << 24 | i[1]  << 16 | i[2]  << 8 | i[3]  ;
+#undef i
+}
