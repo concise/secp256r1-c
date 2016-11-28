@@ -2,18 +2,26 @@
 #include "addsub.h"
 #include "modp.h"
 
-// index bits starting from the most significant bit
-#define FROM_M_MINUS_TWO_EXTRACT_BIT(i) (((const unsigned char *) \
-    "\xff\xff\xff\xff\x00\x00\x00\x01\x00\x00\x00\x00\x00\x00\x00\x00" \
-    "\x00\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xff\xfd" \
-    )[i >> 3] >> (~i & 7) & 1)
-
-#define L 0x00000001
-
-// 0xffffffff00000001000000000000000000000000ffffffffffffffffffffffff
+// M = 0xffffffff00000001000000000000000000000000ffffffffffffffffffffffff
 static const uint32_t M[8] = {
     0xffffffff, 0xffffffff, 0xffffffff, 0x00000000,
-    0x00000000, 0x00000000, 0x00000001, 0xffffffff };
+    0x00000000, 0x00000000, 0x00000001, 0xffffffff,
+    };
+
+// L = -M^-1 % 2^32
+static const uint32_t L = 0x00000001;
+
+// K = M - 2
+static const _Bool K[256] = {
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,1,
+    };
 
 void modp_add(uint32_t *Z, const uint32_t *X, const uint32_t *Y)
 {
@@ -58,7 +66,7 @@ void modp_mmul(uint32_t *Z, const uint32_t *X, const uint32_t *Y)
     }
 }
 
-void modp_inv(uint32_t *Z, const uint32_t *X)
+void modp_minv(uint32_t *Z, const uint32_t *X)
 {
     uint32_t T[8];
     for (int i = 0; i < 8; i++) {
@@ -66,7 +74,7 @@ void modp_inv(uint32_t *Z, const uint32_t *X)
     }
     for (int i = 1; i < 256; i++) {
         modp_mmul(T, T, T);
-        if (FROM_M_MINUS_TWO_EXTRACT_BIT(i)) {
+        if (K[i]) {
             modp_mmul(T, T, X);
         }
     }

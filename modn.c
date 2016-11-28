@@ -2,18 +2,26 @@
 #include "addsub.h"
 #include "modn.h"
 
-// index bits starting from the most significant bit
-#define FROM_M_MINUS_TWO_EXTRACT_BIT(i) (((const unsigned char *) \
-    "\xff\xff\xff\xff\x00\x00\x00\x00\xff\xff\xff\xff\xff\xff\xff\xff" \
-    "\xbc\xe6\xfa\xad\xa7\x17\x9e\x84\xf3\xb9\xca\xc2\xfc\x63\x25\x4f" \
-    )[i >> 3] >> (~i & 7) & 1)
-
-#define L 0xee00bc4f
-
-// 0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551
+// M = 0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551
 static const uint32_t M[8] = {
     0xfc632551, 0xf3b9cac2, 0xa7179e84, 0xbce6faad,
-    0xffffffff, 0xffffffff, 0x00000000, 0xffffffff };
+    0xffffffff, 0xffffffff, 0x00000000, 0xffffffff,
+    };
+
+// L = -M^-1 % 2^32
+static const uint32_t L = 0xee00bc4f;
+
+// K = M - 2
+static const _Bool K[256] = {
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
+    1,0,1,1,1,1,0,0,1,1,1,0,0,1,1,0,1,1,1,1,1,0,1,0,1,0,1,0,1,1,0,1,
+    1,0,1,0,0,1,1,1,0,0,0,1,0,1,1,1,1,0,0,1,1,1,1,0,1,0,0,0,0,1,0,0,
+    1,1,1,1,0,0,1,1,1,0,1,1,1,0,0,1,1,1,0,0,1,0,1,0,1,1,0,0,0,0,1,0,
+    1,1,1,1,1,1,0,0,0,1,1,0,0,0,1,1,0,0,1,0,0,1,0,1,0,1,0,0,1,1,1,1,
+    };
 
 void modn_add(uint32_t *Z, const uint32_t *X, const uint32_t *Y)
 {
@@ -58,7 +66,7 @@ void modn_mmul(uint32_t *Z, const uint32_t *X, const uint32_t *Y)
     }
 }
 
-void modn_inv(uint32_t *Z, const uint32_t *X)
+void modn_minv(uint32_t *Z, const uint32_t *X)
 {
     uint32_t T[8];
     for (int i = 0; i < 8; i++) {
@@ -66,7 +74,7 @@ void modn_inv(uint32_t *Z, const uint32_t *X)
     }
     for (int i = 1; i < 256; i++) {
         modn_mmul(T, T, T);
-        if (FROM_M_MINUS_TWO_EXTRACT_BIT(i)) {
+        if (K[i]) {
             modn_mmul(T, T, X);
         }
     }

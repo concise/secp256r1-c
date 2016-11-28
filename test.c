@@ -42,6 +42,12 @@ int main(void)
     modp_mmul(Z, X, Y);     dumpbuf("Z", Z);
     puts("print((X*Y - Z*2**256) % M == 0)");
 
+    puts("M = 0xffffffff00000001000000000000000000000000ffffffffffffffffffffffff");
+    puts("R = 2**256");
+    memcpy(X, DATA1, 32);   dumpbuf("X", X);
+    modp_minv(Z, X);        dumpbuf("Z", Z);
+    puts("print((Z*X - R**2)%M == 0)");
+
     puts("M = 0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551");
     memcpy(X, DATA1, 32);   dumpbuf("X", X);
     memcpy(Y, DATA2, 32);   dumpbuf("Y", Y);
@@ -60,10 +66,10 @@ int main(void)
     modn_mmul(Z, X, Y);     dumpbuf("Z", Z);
     puts("print((X*Y - Z*2**256) % M == 0)");
 
-    puts("M = 0xffffffff00000001000000000000000000000000ffffffffffffffffffffffff");
+    puts("M = 0xffffffff00000000ffffffffffffffffbce6faada7179e84f3b9cac2fc632551");
     puts("R = 2**256");
     memcpy(X, DATA1, 32);   dumpbuf("X", X);
-    modp_inv(Z, X);         dumpbuf("Z", Z);
+    modn_minv(Z, X);        dumpbuf("Z", Z);
     puts("print((Z*X - R**2)%M == 0)");
 
     return 0;
