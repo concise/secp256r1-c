@@ -23,6 +23,16 @@ static const _Bool K[256] = {
     1,1,1,1,1,1,0,0,0,1,1,0,0,0,1,1,0,0,1,0,0,1,0,1,0,1,0,0,1,1,1,1,
     };
 
+// J = R^2 % M
+//   = 0x66e12d94f3d956202845b2392b6bec594699799c49bd6fa683244c95be79eea2
+static const uint32_t J[8] = {
+    0xbe79eea2, 0x83244c95, 0x49bd6fa6, 0x4699799c,
+    0x2b6bec59, 0x2845b239, 0xf3d95620, 0x66e12d94,
+    };
+
+// I = 1
+static const uint32_t I[8] = { 1, 0, 0, 0, 0, 0, 0, 0, };
+
 void modn_add(uint32_t *Z, const uint32_t *X, const uint32_t *Y)
 {
     uint32_t T[8];
