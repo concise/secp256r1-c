@@ -23,4 +23,20 @@ void modn_sub(uint32_t *Z, const uint32_t *X, const uint32_t *Y);
 void modn_mmul(uint32_t *Z, const uint32_t *X, const uint32_t *Y);
 void modn_minv(uint32_t *Z, const uint32_t *X);
 
+// How to represent an integer modulo M?
+//
+// method 1 --- using 32 uint8_t objects (x[0] ... x[31])
+//
+//      the value is x[0]*2^31 + x[1]*2^30 + ... + x[30]*2 + x[31]
+//
+// method 2 --- using 8 uint32_t objects (y[0] ... y[7])
+//
+//      the value is (y[0] + y[1]*2 + y[2]*2^2 + ... + y[7]*2^7) * R^-1 mod M
+//
+// encode: from method 1 to method 2
+// decode: from method 2 to method 1
+
+void modn_encode(uint32_t *out, const uint8_t *inp);
+void modn_decode(uint8_t *out, const uint32_t *inp);
+
 #endif

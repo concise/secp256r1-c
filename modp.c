@@ -93,16 +93,27 @@ void modp_minv(uint32_t *Z, const uint32_t *X)
     }
 }
 
-void convert_32_u8_objects_to_8_u32_objects(uint32_t *out, const uint8_t *inp)
+void modp_encode(uint32_t *out, const uint8_t *inp)
 {
-#define i (uint32_t)inp
-    out[0] = i[28] << 24 | i[29] << 16 | i[30] << 8 | i[31] ;
-    out[1] = i[24] << 24 | i[25] << 16 | i[26] << 8 | i[27] ;
-    out[2] = i[20] << 24 | i[21] << 16 | i[22] << 8 | i[23] ;
-    out[3] = i[16] << 24 | i[17] << 16 | i[18] << 8 | i[19] ;
-    out[4] = i[12] << 24 | i[13] << 16 | i[14] << 8 | i[15] ;
-    out[5] = i[8]  << 24 | i[9]  << 16 | i[10] << 8 | i[11] ;
-    out[6] = i[4]  << 24 | i[5]  << 16 | i[6]  << 8 | i[7]  ;
-    out[7] = i[0]  << 24 | i[1]  << 16 | i[2]  << 8 | i[3]  ;
-#undef i
+    for (int i = 0; i < 8; i++) {
+        int j = (7-i) * 4;
+        out[i] = (uint32_t) inp[j+0] << 24
+               | (uint32_t) inp[j+1] << 16
+               | (uint32_t) inp[j+2] << 8
+               | (uint32_t) inp[j+3] ;
+    }
+    modp_mmul(out, out, J);
+}
+
+void modp_decode(uint8_t *out, const uint32_t *inp)
+{
+    uint32_t tmp[8];
+    modp_mmul(tmp, inp, I);
+    for (int i = 0; i < 8; i++) {
+        int j = (7-i) * 4;
+        out[j+0] = (uint8_t) (tmp[i] >> 24);
+        out[j+1] = (uint8_t) (tmp[i] >> 16);
+        out[j+2] = (uint8_t) (tmp[i] >> 8);
+        out[j+3] = (uint8_t) tmp[i];
+    }
 }
