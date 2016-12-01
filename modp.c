@@ -54,7 +54,7 @@ void modp_sub(uint32_t *Z, const uint32_t *X, const uint32_t *Y)
     }
 }
 
-void modp_mmul(uint32_t *Z, const uint32_t *X, const uint32_t *Y)
+void modp_mul(uint32_t *Z, const uint32_t *X, const uint32_t *Y)
 {
     uint32_t S[9];
     uint32_t T[9];
@@ -76,16 +76,16 @@ void modp_mmul(uint32_t *Z, const uint32_t *X, const uint32_t *Y)
     }
 }
 
-void modp_minv(uint32_t *Z, const uint32_t *X)
+void modp_inv(uint32_t *Z, const uint32_t *X)
 {
     uint32_t T[8];
     for (int i = 0; i < 8; i++) {
         T[i] = X[i];
     }
     for (int i = 1; i < 256; i++) {
-        modp_mmul(T, T, T);
+        modp_mul(T, T, T);
         if (K[i]) {
-            modp_mmul(T, T, X);
+            modp_mul(T, T, X);
         }
     }
     for (int i = 0; i < 8; i++) {
@@ -102,13 +102,13 @@ void modp_encode(uint32_t *out, const uint8_t *inp)
                | (uint32_t) inp[j+2] << 8
                | (uint32_t) inp[j+3] ;
     }
-    modp_mmul(out, out, J);
+    modp_mul(out, out, J);
 }
 
 void modp_decode(uint8_t *out, const uint32_t *inp)
 {
     uint32_t tmp[8];
-    modp_mmul(tmp, inp, I);
+    modp_mul(tmp, inp, I);
     for (int i = 0; i < 8; i++) {
         int j = (7-i) * 4;
         out[j+0] = (uint8_t) (tmp[i] >> 24);

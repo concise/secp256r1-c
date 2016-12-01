@@ -20,8 +20,8 @@
 
 void modp_add(uint32_t *Z, const uint32_t *X, const uint32_t *Y);
 void modp_sub(uint32_t *Z, const uint32_t *X, const uint32_t *Y);
-void modp_mmul(uint32_t *Z, const uint32_t *X, const uint32_t *Y);
-void modp_minv(uint32_t *Z, const uint32_t *X);
+void modp_mul(uint32_t *Z, const uint32_t *X, const uint32_t *Y);
+void modp_inv(uint32_t *Z, const uint32_t *X);
 
 // How to represent an integer A that is already taken modulo M?
 //
